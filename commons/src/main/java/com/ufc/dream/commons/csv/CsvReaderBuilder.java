@@ -1,10 +1,15 @@
 package com.ufc.dream.commons.csv;
 
 import java.io.*;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -51,7 +56,72 @@ public class CsvReaderBuilder {
         listener.setFileLength(fileLength);
         readFile();
         listener.doAfter();
-        return listener.getList();
+
+        return listener.getList().subList(rowNo, listener.getList().size());
+    }
+
+    /**
+     *  只支持CsvProperty 的 index()
+     *  利用反射泛型 返回对应的类的集合
+     *
+     * @param cla
+     * @return
+     */
+    public <T> List<T> toClassRead(T cla)  {
+        if (inputStream == null){
+            return new ArrayList<>();
+        }
+        if (rowNo < 0 ) {
+            setRowNo(defaultRowNo);
+        }
+        List<String> rowList = new ArrayList<>();
+        listener.setFileLength(fileLength);
+        readFile();
+        listener.doAfter();
+        List<T> list = new LinkedList<>();
+        Class clazz = cla.getClass();
+        try {
+            Constructor declaredConstructor = clazz.getDeclaredConstructor();
+
+            Field[] declaredFields = clazz.getDeclaredFields();
+            for (Object row: listener.getList().subList(rowNo, listener.getList().size())) {
+                T o = (T) declaredConstructor.newInstance();
+                List<Object> rowStr = (List<Object>)row;
+                int size = rowStr.size();
+                boolean noValue = true;
+                for (Field field: declaredFields) {
+                    CsvProperty csvProperty = field.getDeclaredAnnotation(CsvProperty.class);
+                    if (null == csvProperty){
+                        continue;
+                    }
+                    Object value = null;
+
+                    int index = csvProperty.index();
+                    if (index < size){
+                        value = rowStr.get(index);
+                    }
+                    noValue = noValue && (value ==null);
+                    field.setAccessible(true);
+                    field.set(o, value);
+                }
+                // 过滤空行
+                if (noValue){
+                    continue;
+                }
+                list.add(o);
+            }
+
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+        return list;
     }
 
     public  void readFile(){
@@ -85,11 +155,11 @@ public class CsvReaderBuilder {
                         if (tmp == '\n' || tmp == '\r'){
                             if (bos.size() != 0){
                                 rowNum++;
-                                // 清除表头
-                                if (rowNum <= rowNo){
-                                    bos.reset();
-                                    continue;
-                                }
+//                                // 清除表头
+//                                if (rowNum <= rowNo){
+//                                    bos.reset();
+//                                    continue;
+//                                }
                                 cellValueList = toListString(bos.toByteArray());
                                 resultList.add(cellValueList);
                                 listener.invoke(cellValueList);
