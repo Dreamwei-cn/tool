@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ufc.channel.common.mapper.ChannelAppMapper">
+
+    <resultMap id="BaseResultMap" type="com.ufc.channel.common.domain.ChannelApp">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="appName" column="appName" jdbcType="VARCHAR"/>
+            <result property="appKey" column="appKey" jdbcType="VARCHAR"/>
+            <result property="secType" column="secType" jdbcType="TINYINT"/>
+            <result property="priKey" column="priKey" jdbcType="VARCHAR"/>
+            <result property="pulKey" column="pulKey" jdbcType="VARCHAR"/>
+            <result property="status" column="status" jdbcType="TINYINT"/>
+            <result property="createDate" column="createDate" jdbcType="DATE"/>
+            <result property="remark" column="remark" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,appName,appKey,
+        secType,priKey,pulKey,
+        status,createDate,remark
+    </sql>
+<!--查询全部信息，后续添加分页查询-->
+    <select id="selectAll" resultMap="BaseResultMap">
+        select id,appName,appKey,
+               secType,priKey,pulKey,
+               status,createDate,remark from channel_app
+    </select>
+<!--根据name信息进行模糊查询-->
+    <select id="selectByName" parameterType="String" resultMap="BaseResultMap">
+        select * from channel_app
+        <where>
+        1=1
+            <if test="name != null and name != ''">
+               and appName like CONCAT('%',#{name},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/> from channel_app where id = #{id}
+    </select>
+
+    <select id="selectByAppKey" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/> from channel_app where appKey = #{appKey}
+    </select>
+
+<!--新增数据-->
+    <insert id="insertChannelApp" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO channel_app(appName,appKey,secType,priKey,pulKey,STATUS,createDate,remark)
+        VALUES(#{appName},#{appKey},#{secType},#{priKey},#{pulKey},#{status},#{createDate},#{remark})
+    </insert>
+
+<!--修改数据-->
+    <update id="updateChannelApp">
+        update channel_app
+        <set>
+            <if test="appName != null and appName != ''">
+                appName = #{appName},
+            </if>
+            <if test="appKey != null and appKey != ''">
+                appkey = #{appKey},
+            </if>
+            <if test="secType != null and secType != ''">
+                secType = #{secType},
+            </if>
+            <if test="priKey != null and priKey != ''">
+                priKey = #{priKey},
+            </if>
+            <if test="pulKey != null and pulKey != ''">
+                pulKey = #{pulKey},
+            </if>
+            <if test="status != null and status != ''">
+                status = #{status},
+            </if>
+            <if test="createDate != null and createDate != ''">
+                createDate = #{createDate},
+            </if>
+            <if test="remark != null and remark != ''">
+                remark = #{remark},
+            </if>
+        </set>
+        where id = #{id};
+    </update>
+    <!--删除单条数据-->
+    <delete id="deleteChannelApp">
+        delete from channel_app where id = #{id}
+    </delete>
+</mapper>

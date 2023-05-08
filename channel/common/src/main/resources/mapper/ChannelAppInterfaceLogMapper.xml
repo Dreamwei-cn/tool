@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ufc.channel.common.mapper.ChannelAppInterfaceLogMapper">
+
+    <resultMap id="BaseResultMap" type="com.ufc.channel.common.domain.ChannelAppInterfaceLog">
+            <id property="inid" column="inId" jdbcType="BIGINT"/>
+            <result property="interfaceid" column="interfaceId" jdbcType="BIGINT"/>
+            <result property="appid" column="appId" jdbcType="BIGINT"/>
+            <result property="createdate" column="createDate" jdbcType="TIMESTAMP"/>
+            <result property="content" column="content" jdbcType="VARCHAR"/>
+            <result property="data" column="data" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        inId,interfaceId,appId,
+        createDate,content,data
+    </sql>
+</mapper>
