@@ -8,6 +8,11 @@ import com.ufc.channel.common.service.ChannelAppBackLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/test")
 public class TestController {
@@ -32,4 +37,6 @@ public class TestController {
         System.out.println(jsonObject.toString());
         return new ResponseResult(ResponseResult.CodeStatus.OK, "path");
     }
+
+
 }
