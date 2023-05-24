@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ufc.channel.common.mapper.ChannelAppInterfaceMapper">
+
+    <resultMap id="BaseResultMap" type="com.ufc.channel.common.domain.ChannelAppInterface">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="apiname" column="apiName" jdbcType="VARCHAR"/>
+            <result property="apiurl" column="apiUrl" jdbcType="VARCHAR"/>
+            <result property="method" column="method" jdbcType="TINYINT"/>
+            <result property="backurl" column="backUrl" jdbcType="VARCHAR"/>
+            <result property="backmethod" column="backMethod" jdbcType="TINYINT"/>
+            <result property="appid" column="appId" jdbcType="BIGINT"/>
+            <result property="remark" column="remark" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,apiName,apiUrl,
+        method,backUrl,backMethod,
+        appId,remark
+    </sql>
+
+    <select id="getAll" resultMap="BaseResultMap">
+        select * from channel_app_interface where appId=#{appId};
+    </select>
+
+    <select id="selectByAppAndPath" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List" />
+            from channel_app_interface where appid = #{appId} and apiurl = #{apiUrl}
+    </select>
+
+    <insert id="addChannelAppInterface" useGeneratedKeys="true" keyProperty="id">
+        insert into channel_app_interface(apiName,apiUrl,method,backUrl,backMethod,appId,remark)
+        values(#{apiname},#{apiurl},#{method},#{backurl},#{backmethod},#{appid},#{remark})
+    </insert>
+
+    <update id="updateChannelAppInterface">
+        update channel_app_interface
+        <set>
+            <if test="apiname != null and apiname != ''">
+                apiName = #{apiname},
+            </if>
+            <if test="apiurl != null and apiurl != ''">
+                apiUrl = #{apiurl},
+            </if>
+            <if test="method != null and method != ''">
+                method = #{method},
+            </if>
+            <if test="backurl != null and backurl != ''">
+                backUrl = #{backurl},
+            </if>
+            <if test="backmethod != null and backmethod != ''">
+                backMethod = #{backmethod},
+            </if>
+            <if test="appid != null and appid != ''">
+                appId = #{appid},
+            </if>
+            <if test="remark != null and remark != ''">
+                remark = #{remark},
+            </if>
+        </set>
+            where id = #{id}
+    </update>
+
+    <delete id="delChannelAppInterface">
+        delete from channel_app_interface where id=#{id}
+    </delete>
+
+</mapper>
