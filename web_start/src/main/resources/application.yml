@@ -1,0 +1,33 @@
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/openAi?currentSchema=chat
+    username: postgres
+    password: root
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+
+
+
+
+
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*Mapper.xml
+  typeAliasesPackage: com.ufc.dream.web_start.entity
+  global-config:
+    db-config:
+      id-type: ASSIGN_ID
+      select-strategy: ignored
+      insert-strategy: ignored
+      update-strategy: not_null
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+
+server:
+  port: 8080

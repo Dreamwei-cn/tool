@@ -13,6 +13,8 @@
     <packaging>jar</packaging>
     <properties>
         <java.version>1.8</java.version>
+        <mybatis.plus.boot.starter.version>3.3.2</mybatis.plus.boot.starter.version>
+        <druid.spring.boot.starter.version>1.2.8</druid.spring.boot.starter.version>
     </properties>
     <dependencies>
 
@@ -56,6 +58,29 @@
             <artifactId>velocity-engine-core</artifactId>
             <version>2.3</version>
         </dependency>
+
+        <!-- 数据库交互相关 -->
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>${mybatis.plus.boot.starter.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-starter</artifactId>
+            <version>${druid.spring.boot.starter.version}</version>
+        </dependency>
+
+
+
     </dependencies>
 
     <build>
