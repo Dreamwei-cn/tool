@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ufc.dream.web_start.mapper.SysUserMapper">
+
+    <resultMap id="BaseResultMap" type="com.ufc.dream.web_start.entity.SysUser">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="userNo" column="user_no" jdbcType="VARCHAR"/>
+            <result property="weixin" column="weixin" jdbcType="VARCHAR"/>
+            <result property="phone" column="phone" jdbcType="VARCHAR"/>
+            <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+            <result property="password" column="password" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_no,weixin,
+        phone,user_name,password
+    </sql>
+
+    <insert id="insertEntity">
+        insert into sys_user (user_no, weixin, phone, user_name, password)
+        values (#{userNo}, #{weixin}, #{phone}, #{userName}, #{password})
+    </insert>
+
+    <insert id="insertEntitySql">
+        insert into sys_user (user_no, weixin, phone, user_name, password)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.userNo}, #{item.weixin}, #{item.phone}, #{item.userName}, #{item.password})
+        </foreach>
+    </insert>
+
+    <select id="selectOneByName" resultType="com.ufc.dream.web_start.entity.SysUser">
+        select <include refid="Base_Column_List"></include>
+        from sys_user
+        where user_name = #{name}
+        limit 1
+    </select>
+    <select id="selectUserList" resultType="com.ufc.dream.web_start.entity.SysUser">
+        select <include refid="Base_Column_List"></include>
+        from sys_user
+        limit ${count}
+    </select>
+
+
+    <update id="updateUserNameById">
+        update sys_user set user_name = #{userName}
+        where id = #{id}
+    </update>
+
+
+    <update id="updateUserNameByIdCase" parameterType="list">
+        update sys_user set user_name =
+        <foreach collection="list" item="item" separator=" " open="case id" close="end">
+            when #{item.id} then #{item.userName}
+        </foreach>
+        where id in
+        <foreach collection="list" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </update>
+    <update id="updateUserNameByIdSql">
+        <foreach collection="list" item="item" separator=";">
+            update sys_user set user_name = #{item.userName}
+            where id = #{item.id}
+        </foreach>
+    </update>
+
+
+</mapper>
