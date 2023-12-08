@@ -14,9 +14,9 @@
     </properties>
 
     <modules>
-        <module>commons</module>
-        <module>web_start</module>
+        <module>ufc_commons</module>
         <module>channel</module>
+        <module>web_start</module>
     </modules>
 
     <dependencyManagement>
