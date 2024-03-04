@@ -30,7 +30,14 @@ server:
 ---
 spring:
   redis:
-    host: localhost
+    host: 127.0.0.1
     port: 6379
     database: 0
+    jedis:
+      pool:
+        enabled: true
+        max-active: 8
+        max-idle: 8
+        min-idle: 1
+        max-wait: 30000
 #    password: 123456

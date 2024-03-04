@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.ufc.dream.web_start.config.redisession.LockerUtil;
+import com.ufc.dream.web_start.config.redisession.RedissonLocker;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
@@ -37,7 +39,7 @@ import redis.clients.jedis.JedisPoolConfig;
 import java.time.Duration;
 
 /**
- * @description: redis配置
+ * @description: redis配置类
  * @author: mengw
  **/
 @EnableCaching
@@ -45,15 +47,10 @@ import java.time.Duration;
 @AutoConfigureBefore({RedisAutoConfiguration.class})
 public class RedisTemplateConfiguration {
 
-    @Value("${spring.redis.host}")
-    private String host;
-    @Value("${spring.redis.port}")
-    private String port;
-//    @Value("${spring.redis.password}")
-//    private String password;
-    @Value("${spring.redis.database}")
-    private String database;
 
+    /**
+     *  @description: 获取redis 相关的配置信息
+     */
     @Autowired
     private RedisProperties redisProperties;
 
@@ -87,11 +84,19 @@ public class RedisTemplateConfiguration {
         return template;
     }
 
+
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory factory) {
         RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofHours(1L));
         return RedisCacheManager.builder(RedisCacheWriter.nonLockingRedisCacheWriter(factory)).cacheDefaults(redisCacheConfiguration).build();
     }
+
+    /**
+     * 注册 RedisConnectionFactory
+     * @param jedisPoolConfig
+     * @param redisStandaloneConfiguration
+     * @return
+     */
     @Bean
     public RedisConnectionFactory factory(JedisPoolConfig jedisPoolConfig, RedisStandaloneConfiguration  redisStandaloneConfiguration) {
         JedisConnectionFactory connectionFactory = new JedisConnectionFactory(redisStandaloneConfiguration);
@@ -99,6 +104,17 @@ public class RedisTemplateConfiguration {
         return connectionFactory;
 
     }
+    @Bean
+    public RedisStandaloneConfiguration redisStandaloneConfiguration() {
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
+        config.setHostName(redisProperties.getHost());
+        config.setPort(redisProperties.getPort());
+        config.setDatabase(redisProperties.getDatabase());
+        config.setPassword(RedisPassword.of(redisProperties.getPassword()));
+        return config;
+    }
+
+
 
     @Bean
     public JedisPoolConfig jedisPoolConfig() {
@@ -111,17 +127,6 @@ public class RedisTemplateConfiguration {
         return jedisPoolConfig;
     }
 
-
-    @Bean
-    public RedisStandaloneConfiguration redisStandaloneConfiguration() {
-        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
-        config.setHostName(redisProperties.getHost());
-        config.setPort(redisProperties.getPort());
-        config.setDatabase(redisProperties.getDatabase());
-        config.setPassword(RedisPassword.of(redisProperties.getPassword()));
-        return config;
-    }
-
     @Bean
     public JedisPool jedisPool(JedisPoolConfig jedisPoolConfig) {
         return new JedisPool(jedisPoolConfig, redisProperties.getHost(),
@@ -129,19 +134,37 @@ public class RedisTemplateConfiguration {
     }
 
 
+    /**
+     *  注册RedisUtil
+     * @param redisTemplate
+     * @return
+     */
     @Bean(name = {"redisUtil"})
     @ConditionalOnBean({RedisTemplate.class})
     public RedisUtil redisUtils(RedisTemplate<String, Object> redisTemplate) {
         return new RedisUtil(redisTemplate);
     }
 
+
+    @Bean
+    public RedissonLocker redissonLocker(RedissonClient redissonClient) {
+        RedissonLocker redissonLocker = new RedissonLocker(redissonClient);
+        // LockerUtils locker 实例化
+        LockerUtil.setLocker(redissonLocker);
+        return redissonLocker;
+    }
+
+    /**
+     * @description  注册 RedissonClient  RedissonLocker类注册时 LockerUtils locker 实例化
+     * @return
+     */
     @Bean
     public RedissonClient redissonClient() {
         Config cfg = new Config();
-        String redisUrl = String.format("redis://%s:%s", host + "", port + "");
+        String redisUrl = String.format("redis://%s:%s", redisProperties.getHost() + "", redisProperties.getPort() + "");
         cfg.useSingleServer().setAddress(redisUrl);
-//                .setPassword(password);
-        cfg.useSingleServer().setDatabase(Integer.parseInt(database));
+//                .setPassword(redisProperties.getPassword());
+        cfg.useSingleServer().setDatabase(redisProperties.getDatabase());
         cfg.useSingleServer().setConnectTimeout(3000)
                 .setTimeout(3000)
                 .setRetryAttempts(3)
@@ -150,4 +173,5 @@ public class RedisTemplateConfiguration {
                 ;
         return Redisson.create(cfg);
     }
+
 }
