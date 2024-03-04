@@ -8,11 +8,13 @@ import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -20,11 +22,17 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.cache.RedisCacheWriter;
+
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisPassword;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
 import java.time.Duration;
 
@@ -46,6 +54,9 @@ public class RedisTemplateConfiguration {
     @Value("${spring.redis.database}")
     private String database;
 
+    @Autowired
+    private RedisProperties redisProperties;
+
     public RedisTemplateConfiguration() {
     }
 
@@ -57,9 +68,9 @@ public class RedisTemplateConfiguration {
 
     @Bean(name = {"redisTemplate"})
     @ConditionalOnMissingBean({RedisTemplate.class})
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(redisConnectionFactory);
+        template.setConnectionFactory(factory);
 
         FastJson2JsonRedisSerializer serializer = new FastJson2JsonRedisSerializer(Object.class);
 
@@ -77,10 +88,46 @@ public class RedisTemplateConfiguration {
     }
 
     @Bean
-    public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
+    public CacheManager cacheManager(RedisConnectionFactory factory) {
         RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofHours(1L));
-        return RedisCacheManager.builder(RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory)).cacheDefaults(redisCacheConfiguration).build();
+        return RedisCacheManager.builder(RedisCacheWriter.nonLockingRedisCacheWriter(factory)).cacheDefaults(redisCacheConfiguration).build();
     }
+    @Bean
+    public RedisConnectionFactory factory(JedisPoolConfig jedisPoolConfig, RedisStandaloneConfiguration  redisStandaloneConfiguration) {
+        JedisConnectionFactory connectionFactory = new JedisConnectionFactory(redisStandaloneConfiguration);
+        connectionFactory.setPoolConfig(jedisPoolConfig);
+        return connectionFactory;
+
+    }
+
+    @Bean
+    public JedisPoolConfig jedisPoolConfig() {
+        RedisProperties.Pool pool = redisProperties.getJedis().getPool();
+        JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
+        jedisPoolConfig.setMaxTotal(pool.getMaxActive());
+        jedisPoolConfig.setMaxIdle(pool.getMaxIdle());
+        jedisPoolConfig.setMinIdle(pool.getMinIdle());
+        jedisPoolConfig.setMaxWait(pool.getMaxWait());
+        return jedisPoolConfig;
+    }
+
+
+    @Bean
+    public RedisStandaloneConfiguration redisStandaloneConfiguration() {
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
+        config.setHostName(redisProperties.getHost());
+        config.setPort(redisProperties.getPort());
+        config.setDatabase(redisProperties.getDatabase());
+        config.setPassword(RedisPassword.of(redisProperties.getPassword()));
+        return config;
+    }
+
+    @Bean
+    public JedisPool jedisPool(JedisPoolConfig jedisPoolConfig) {
+        return new JedisPool(jedisPoolConfig, redisProperties.getHost(),
+                redisProperties.getPort(), 0, redisProperties.getPassword(), redisProperties.getDatabase());
+    }
+
 
     @Bean(name = {"redisUtil"})
     @ConditionalOnBean({RedisTemplate.class})

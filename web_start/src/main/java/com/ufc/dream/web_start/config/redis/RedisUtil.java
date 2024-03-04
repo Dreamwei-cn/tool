@@ -6,10 +6,11 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.*;
-import redis.clients.jedis.JedisCommands;
-import redis.clients.jedis.MultiKeyCommands;
+
 import redis.clients.jedis.ScanParams;
 import redis.clients.jedis.ScanResult;
+import redis.clients.jedis.commands.JedisCommands;
+import redis.clients.jedis.commands.MultiKeyCommands;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -564,10 +565,11 @@ public class RedisUtil {
             scanParams.match(key);
             scanParams.count(1000);
             ScanResult<String> scan = multiKeyCommands.scan("0", scanParams);
-            while (null != scan.getStringCursor()) {
+
+            while (null !=    scan.getCursor()) {
                 keys.addAll(scan.getResult());
-                if (!StringUtils.equals("0", scan.getStringCursor())) {
-                    scan = multiKeyCommands.scan(scan.getStringCursor(), scanParams);
+                if (!StringUtils.equals("0", scan.getCursor())) {
+                    scan = multiKeyCommands.scan(scan.getCursor(), scanParams);
                     continue;
                 } else {
                     break;
