@@ -11,9 +11,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
- * @program: cem
  * @description:
- * @author: superfish
+ * @author: mengw
  * @create: 2020-12-17 15:08
  **/
 public class RedisKeySerializer implements RedisSerializer<Object> {

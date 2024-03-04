@@ -3,10 +3,8 @@ package com.ufc.dream.web_start.config.redisession;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @program: taidu8
  * @description:
- * @author: superfish
- * @create: 2020-08-10 11:39
+ * @author: mengw
  **/
 public final class LockerUtil {
 

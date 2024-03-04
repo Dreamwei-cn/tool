@@ -7,11 +7,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * @program: taidu8
- * @description:
- * @author: superfish
- * @create: 2020-08-10 13:43
- **/
+ *
+ * @author mengw
+ */
 @Slf4j
 @Configuration
 public class RedissonConfig {

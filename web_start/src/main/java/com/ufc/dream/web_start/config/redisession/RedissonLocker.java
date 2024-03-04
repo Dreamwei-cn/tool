@@ -6,10 +6,8 @@ import org.redisson.api.RedissonClient;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @program: taidu8
  * @description:
- * @author: superfish
- * @create: 2020-08-10 11:41
+ * @author: mengw
  **/
 public class RedissonLocker implements Locker {
 

@@ -29,10 +29,8 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import java.time.Duration;
 
 /**
- * @program: cem
  * @description: redis配置
- * @author: superfish
- * @create: 2020-12-17 15:07
+ * @author: mengw
  **/
 @EnableCaching
 @Configuration
@@ -43,8 +41,8 @@ public class RedisTemplateConfiguration {
     private String host;
     @Value("${spring.redis.port}")
     private String port;
-    @Value("${spring.redis.password}")
-    private String password;
+//    @Value("${spring.redis.password}")
+//    private String password;
     @Value("${spring.redis.database}")
     private String database;
 
@@ -94,7 +92,8 @@ public class RedisTemplateConfiguration {
     public RedissonClient redissonClient() {
         Config cfg = new Config();
         String redisUrl = String.format("redis://%s:%s", host + "", port + "");
-        cfg.useSingleServer().setAddress(redisUrl).setPassword(password);
+        cfg.useSingleServer().setAddress(redisUrl);
+//                .setPassword(password);
         cfg.useSingleServer().setDatabase(Integer.parseInt(database));
         cfg.useSingleServer().setConnectTimeout(3000)
                 .setTimeout(3000)
