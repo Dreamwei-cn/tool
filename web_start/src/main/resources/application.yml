@@ -9,11 +9,6 @@ spring:
       maximum-pool-size: 10
       minimum-idle: 5
 
-
-
-
-
-
 mybatis-plus:
   mapper-locations: classpath:/mapper/*Mapper.xml
   typeAliasesPackage: com.ufc.dream.web_start.entity
@@ -31,3 +26,18 @@ mybatis-plus:
 
 server:
   port: 8080
+
+---
+spring:
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    database: 0
+    jedis:
+      pool:
+        enabled: true
+        max-active: 8
+        max-idle: 8
+        min-idle: 1
+        max-wait: 30000
+#    password: 123456

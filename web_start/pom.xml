@@ -20,7 +20,7 @@
 
         <dependency>
             <groupId>com.ufc.dream</groupId>
-            <artifactId>commons</artifactId>
+            <artifactId>ufc.commons</artifactId>
             <version>0.0.1</version>
         </dependency>
 
@@ -59,6 +59,14 @@
             <version>2.3</version>
         </dependency>
 
+        <!-- hutool工具 -->
+
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.8.1</version>
+        </dependency>
+
         <!-- 数据库交互相关 -->
 
         <dependency>
@@ -79,7 +87,26 @@
             <version>${druid.spring.boot.starter.version}</version>
         </dependency>
 
-
+        <!-- redis  不需要version信息 -->
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson</artifactId>
+            <version>3.11.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.lettuce</groupId>
+                    <artifactId>lettuce-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
     </dependencies>
 
